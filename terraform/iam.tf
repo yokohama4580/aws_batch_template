@@ -3,6 +3,7 @@
 
 resource "aws_iam_role" "AWSBatchServiceRole2" {
   name  = "AWSBatchServiceRole2"
+  path        = "/service-role/"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -30,11 +31,7 @@ data "aws_iam_policy" "AWSBatchServiceRole" {
 resource "aws_iam_role_policy_attachment" "AWSBatchServiceRole2-attach" {
   role       = aws_iam_role.AWSBatchServiceRole2.name
   policy_arn = data.aws_iam_policy.AWSBatchServiceRole.arn
-}
-
-resource "aws_iam_instance_profile" "AWSBatchServiceRole2" {
-  name = "AWSBatchServiceRole2"
-  role = aws_iam_role.AWSBatchServiceRole2.name
+  depends_on = [aws_iam_role.AWSBatchServiceRole2]
 }
 
 resource "aws_iam_role" "ecsInstanceRole2" {
@@ -63,9 +60,18 @@ data "aws_iam_policy" "AmazonEC2ContainerServiceforEC2Role" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-resource "aws_iam_role_policy_attachment" "ecsInstanceRole2-attach" {
+resource "aws_iam_role_policy_attachment" "ecsInstanceRole2-attach-1" {
   role       = aws_iam_role.ecsInstanceRole2.name
   policy_arn = data.aws_iam_policy.AmazonEC2ContainerServiceforEC2Role.arn
+}
+
+data "aws_iam_policy" "AmazonS3FullAccess" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ecsInstanceRole2-attach-2" {
+  role       = aws_iam_role.ecsInstanceRole2.name
+  policy_arn = data.aws_iam_policy.AmazonS3FullAccess.arn
 }
 
 resource "aws_iam_instance_profile" "ecs_instance_role2" {
