@@ -7,13 +7,16 @@
 - terraformでAWS上に簡単にAWS Batch環境が構築できる
 - docker buildからECRへのdocker push、(初回のみ)バッチジョブ定義の作成が1スクリプトで実行できる
 - AWS Batchの実行状況がコンソールで確認できる
+- RUNNABLE状態で止まり続ける問題や、実行時間が長すぎる問題に対処できるよう、それぞれ900秒、3600秒経過するとコンテナを落とす
  
 # Requirement
+awscli 1.16
 terraform 0.12
+
 
 # Installation
 ```bash
-brew install docker awscli direnv terraform
+brew install docker awscli direnv terraform jq
 brew cask install docker
 ```
  
@@ -53,23 +56,28 @@ terraform {
 - プロジェクトルートで`terraform init`
 - プロジェクトルートで`terraform apply --auto-approve`
 
-## docker build~docker push~ジョブ定義の作成
-- プロジェクトルートで`script/docker_build_and_push.sh`を実行
+## docker build => docker push => ジョブ定義の作成
+1. jobs/sample-jobをコピーして、適当な名前にrename e.g. weekly-job
+2. jobs/{renamed-job-name}/app/配下に実行したい処理を記載
+3. jobs/{renamed-job-name}/app/entrypoint.shから2の処理を呼び出すように記載
+4. jobs/{renamed-job-name}/app/Dockerfileを処理内容に応じて修正。
+5. プロジェクトルートで`docker_build_and_push.sh {renamed-job-name}`を実行（処理完了後、job-definition-nemeが表示されます）
 
 ## ジョブの実行
-- プロジェクトルートで`script/submit_job_and_polling_status.sh`を実行 => 実行状況がコンソールに表示されます
+- プロジェクトルートで`submit_job_and_polling_status.sh {job-definition-neme}`を実行 => 実行状況がコンソールに表示されます
  
 # Note
  
 以下のawsリソースのtfファイルを用意しているので、利用状況に応じて不要なものを削除して利用ください。
 - VPC/subnet
-- security group
+- elastic IP
 - NAT gateway/Internet gateway
-- IAM role/Instance profile
+- route table
+- IAM role/Instance profile/Policy attach
 - AWS Batch Compute Engironment
 - AWS Batch Job Queue
 
-なお、ECRはスクリプトの中で必要に応じて作成する形式を取っているため、terraform管理ではありません。
+なお、ECRとAWS Batch Job Definitionはスクリプトの中で必要に応じて作成する形式を取っているため、terraform管理ではありません。
  
 # Author
   
