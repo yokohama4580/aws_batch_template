@@ -12,7 +12,7 @@ resource "aws_subnet" "public" {
   cidr_block = "10.0.1.0/24"
 
   tags = {
-    Name = "terraform batch"
+    Name = "terraform batch public"
   }
 }
 resource "aws_subnet" "private" {
@@ -20,7 +20,7 @@ resource "aws_subnet" "private" {
   cidr_block = "10.0.2.0/24"
 
   tags = {
-    Name = "terraform batch"
+    Name = "terraform batch private"
   }
 }
 
@@ -67,6 +67,14 @@ resource "aws_route_table" "private" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.gw.id
   }
+
+# terraform planのたびに、
+# - nat_gateway_id
+# + gateway_id
+# となってしまうので、気になる場合は以下のオプションを有効化
+lifecycle {
+  ignore_changes = [route]
+}
 
   tags = {
     Name = "terraform batch"
