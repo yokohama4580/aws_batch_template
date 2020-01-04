@@ -9,13 +9,13 @@
 - AWS Batchの実行状況がコンソールで確認できる
  
 # Requirement
-以下環境での実行確認済み。 
-- MacOS Mojave
-- docker
-- aws-cli
- 
+terraform 0.12
+
 # Installation
-後で記載予定
+```bash
+brew install docker awscli direnv terraform
+brew cask install docker
+```
  
 # Usage
 ```bash
@@ -24,7 +24,7 @@ cd aws_batch_template
 ```
 
 ## 環境変数の設定
-- 以下環境変数をset。（[direnv]()での管理推奨。）
+- 以下環境変数をset。（[direnv](https://github.com/direnv/direnv)での管理推奨）
 
 ```.envrc
 export AWS_ACCESS_KEY_ID=
@@ -35,6 +35,10 @@ export AWS_ECR_REPOSITORY_PREFIX=
 ```
 
 ## AWSリソースの作成
+- tfstate保存用のS3バケットを作成
+```bash
+aws s3 mb s3://hogepiyo
+```
 - terraform/backend.tfに保存先のS3バケットを記載。
 
 ```backend.tf
@@ -65,7 +69,7 @@ terraform {
 - AWS Batch Compute Engironment
 - AWS Batch Job Queue
 
-なお、ECRはスクリプトの中で必要に応じて作成しているので、terraform管理ではありません。
+なお、ECRはスクリプトの中で必要に応じて作成する形式を取っているため、terraform管理ではありません。
  
 # Author
   
