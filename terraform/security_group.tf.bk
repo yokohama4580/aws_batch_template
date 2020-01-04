@@ -1,0 +1,3 @@
+data "aws_security_group" "app_sg" {
+  id    = "${var.app_sg_id}"
+}

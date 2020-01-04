@@ -1,0 +1,5 @@
+variable "AWS_ECR_REPOSITORY_NAME" {}
+
+data "aws_ecr_repository" "batch" {
+  name = "${var.AWS_ECR_REPOSITORY_NAME}"
+}
