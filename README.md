@@ -59,7 +59,7 @@ terraform {
 ## docker build => docker push => ジョブ定義の作成
 1. jobs/sample-jobをコピーして、適当な名前にrename e.g. weekly-job
 2. jobs/{renamed-job-name}/app/配下に実行したい処理を記載
-3. jobs/{renamed-job-name}/app/entrypoint.shから2の処理を呼び出すように記載
+3. jobs/{renamed-job-name}/app/entrypoint.shから2.の処理を呼び出すように記載
 4. jobs/{renamed-job-name}/app/Dockerfileを処理内容に応じて修正。
 5. プロジェクトルートで`docker_build_and_push.sh {renamed-job-name}`を実行（処理完了後、job-definition-nemeが表示されます）
 

@@ -21,9 +21,6 @@ resource "aws_batch_compute_environment" "optimal" {
 
     type = "EC2"
   }
-  lifecycle {
-    ignore_changes = [compute_resources]
-  }
   service_role = aws_iam_role.AWSBatchServiceRole2.arn
   type         = "MANAGED"
 }
