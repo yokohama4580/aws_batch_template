@@ -60,6 +60,7 @@ resource "aws_route_table" "public" {
     Name = "terraform batch"
   }
 }
+
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
@@ -68,13 +69,13 @@ resource "aws_route_table" "private" {
     gateway_id = aws_nat_gateway.gw.id
   }
 
-# terraform planのたびに、
-# - nat_gateway_id
-# + gateway_id
-# となってしまうので、気になる場合は以下のオプションを有効化
-lifecycle {
-  ignore_changes = [route]
-}
+  # terraform planのたびに、
+  # - nat_gateway_id
+  # + gateway_id
+  # となってしまうので、気になる場合は以下のオプションを有効化
+  lifecycle {
+    ignore_changes = [route]
+  }
 
   tags = {
     Name = "terraform batch"

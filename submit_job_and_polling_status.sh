@@ -22,7 +22,8 @@ trap 'eval `aws batch cancel-job --job-id $BATCH_JOB_ID --reason "KeyboardInterr
 # RUNNABLEに留まり続ける問題対策
 SLEEP_TIME=30
 MAX_TRY=30
-MAX_TIME=`expr $SLEEP_TIME \* $MAX_TRY`
+echo "SLEEP_TIME=$SLEEP_TIME"
+echo "MAX_TRY=$MAX_TRY"
 echo "polling job status every $SLEEP_TIME seconds before STARTING"
 for i in `seq $MAX_TRY`
 do
@@ -36,21 +37,23 @@ do
         continue
     elif [ $BATCH_JOB_STATUS = "RUNNABLE" ]; then
         echo $i/$MAX_TRY "[$TARGET]" "SUBMITTED > PENDING > RUNNABLE > .."
+        if [ $i = $MAX_TRY ]; then
+            MAX_TIME=`expr $SLEEP_TIME \* $MAX_TRY`
+            echo "the job stayed at RUNNABLE over $MAX_TIME seconds. Cancelling job..." 1>&2
+            aws batch cancel-job --job-id $BATCH_JOB_ID --reason "RUNNABLE over $MAX_TIME seconds"
+            exit 1
+        fi
         continue
     else
         break
-    fi
-    if [ $i = $MAX_TRY ]; then
-        echo "the job stayed at RUNNABLE over $MAX_TIME seconds. Cancelling job..." 1>&2
-        aws batch cancel-job --job-id $BATCH_JOB_ID --reason "RUNNABLE over $MAX_TIME seconds"
-        exit 1
     fi
 done
 
 SLEEP_TIME=30
 MAX_TRY=120
-MAX_TIME=`expr $SLEEP_TIME \* $MAX_TRY`
-echo 'polling job status every 30 seconds after RUNNING'
+echo "SLEEP_TIME=$SLEEP_TIME"
+echo "MAX_TRY=$MAX_TRY"
+echo 'polling job status every $SLEEP_TIME seconds after RUNNING'
 for i in `seq $MAX_TRY`
 do
     sleep $SLEEP_TIME
@@ -60,17 +63,18 @@ do
         continue
     elif [ $BATCH_JOB_STATUS = "RUNNING" ]; then
         echo $i/$MAX_TRY "[$TARGET]" "SUBMITTED > PENDING > RUNNABLE > STARTING > RUNNING > .."
+        if [ $i = $MAX_TRY ]; then
+            MAX_TIME=`expr $SLEEP_TIME \* $MAX_TRY`
+            echo "[$TARGET]" "job time over $MAX_TIME seconds. Cancelling job." 1>&2
+            aws batch cancel-job --job-id $BATCH_JOB_ID --reason "job time over $MAX_TIME seconds. Cancelling job."
+            exit 1
+        fi
         continue
     elif [ $BATCH_JOB_STATUS = "SUCCEEDED" ]; then
         echo $i/$MAX_TRY "[$TARGET]" "SUBMITTED > PENDING > RUNNABLE > STARTING > RUNNING > SUCCEEDED"
         exit 0
     elif [ $BATCH_JOB_STATUS = "FAILED" ]   ; then
         echo $i/$MAX_TRY "[$TARGET]" "SUBMITTED > PENDING > RUNNABLE > STARTING > RUNNING > FAILED" 1>&2
-        exit 1
-    fi
-    if [ $i = $MAX_TRY ]; then
-        echo "[$TARGET]" "job time over $MAX_TIME seconds. Cancelling job." 1>&2
-        aws batch cancel-job --job-id $BATCH_JOB_ID --reason "job time over $MAX_TIME seconds. Cancelling job."
         exit 1
     fi
 done
