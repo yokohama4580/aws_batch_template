@@ -64,7 +64,8 @@ terraform {
 5. プロジェクトルートで`docker_build_and_push.sh {renamed-job-name}`を実行（処理完了後、job-definition-nemeが表示されます）
 
 ## ジョブの実行
-- プロジェクトルートで`submit_job_and_polling_status.sh {job-definition-neme}`を実行 => 実行状況がコンソールに表示されます
+- プロジェクトルートで`submit_job_and_polling_status.sh {job-definition-neme} {job-queue}`を実行 => 実行状況がコンソールに表示されます
+- 実行結果がFAILEDの場合、CloudWatch Logsからログを取得して表示します
  
 # Note
 
