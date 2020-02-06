@@ -67,7 +67,7 @@ terraform {
 - プロジェクトルートで`submit_job_and_polling_status.sh {job-definition-neme}`を実行 => 実行状況がコンソールに表示されます
  
 # Note
- 
+
 以下のawsリソースのtfファイルを用意しているので、利用状況に応じて不要なものを削除して利用ください。
 - VPC/subnet
 - elastic IP
@@ -78,6 +78,12 @@ terraform {
 - AWS Batch Job Queue
 
 なお、ECRとAWS Batch Job Definitionはスクリプトの中で必要に応じて作成する形式を取っているため、terraform管理ではありません。
+
+terraformでaws_batch_compute_environmentを修正する際、<br>
+terraformがaws_batch_job_queueとaws_batch_compute_environmentの依存を上手く判定してくれず、<br>
+applyするとエラーになります。
+一度aws_batch_job_queueをコメントアウトしてからterraform applyしてaws_batch_job_queueを削除し、
+その後再度コメントインしてからterraform applyすることで回避してください。
  
 # Author
   
